@@ -23,7 +23,13 @@ const DEFAULT_ENGINEER_ID = 'cmwgjfbri001aumk0lq1nlkgn';
 
 function App() {
   const role = (new URLSearchParams(location.search).get('role') || 'customer').toLowerCase();
-  const [api, setApi] = useState((import.meta as any).env?.VITE_API_URL || 'http://localhost:4000');
+  const [api, setApiState] = useState(() => {
+    return localStorage.getItem('NEXUS_API_URL') || (import.meta as any).env?.VITE_API_URL || 'http://localhost:4000';
+  });
+  const setApi = (url: string) => {
+    setApiState(url);
+    localStorage.setItem('NEXUS_API_URL', url);
+  };
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');
   const [mode, setMode] = useState('ONSITE');
@@ -343,8 +349,25 @@ function App() {
         </section>
       )}
 
-      <footer>
-        Connected to Supabase PostgreSQL & Express Engine · Nexus Creative Networking MVP.
+      <footer style={{ marginTop: 24, borderTop: '1px solid #e2e8f0', paddingTop: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
+          <span style={{ fontSize: 13, fontWeight: 'bold', color: '#475569' }}>API Server:</span>
+          <input
+            style={{ width: 'auto', flex: 1, minWidth: 260, padding: '7px 12px', fontSize: 13 }}
+            value={api}
+            onChange={(e) => setApi(e.target.value.trim())}
+            placeholder="https://your-backend.onrender.com"
+          />
+          <button
+            style={{ margin: 0, padding: '7px 14px', fontSize: 13 }}
+            onClick={() => location.reload()}
+          >
+            Connect API
+          </button>
+        </div>
+        <p style={{ margin: 0, color: '#64748b', fontSize: 12 }}>
+          Connected to Supabase PostgreSQL & Express Engine · Nexus Creative Networking MVP.
+        </p>
       </footer>
     </main>
   );
