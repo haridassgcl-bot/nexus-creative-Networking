@@ -12,6 +12,6 @@ router.post('/',requireRole('CUSTOMER'),async(req,res)=>{
  const dispatch=await dispatchJob(job.id); res.status(201).json({job,dispatch});
  } catch(e:any){res.status(400).json({error:e.message||'INVALID_REQUEST'});}
 });
-router.get('/:id',async(req,res)=>{const job=await prisma.job.findUnique({where:{id:req.params.id},include:{items:true,events:{orderBy:{createdAt:'asc'}},assignment:true}}); if(!job)return res.status(404).json({error:'NOT_FOUND'}); if(req.user?.role==='CUSTOMER'&&job.customerId!==req.user.id)return res.sendStatus(403); res.json(job);});
-router.get('/:id/matches',requireRole('ADMIN'),async(req,res)=>{try{res.json(await findMatches(req.params.id,Number(req.query.radius)||10));}catch(e:any){res.status(400).json({error:e.message});}});
+router.get('/:id',async(req,res)=>{const id=String(req.params.id);const job=await prisma.job.findUnique({where:{id},include:{items:true,events:{orderBy:{createdAt:'asc'}},assignment:true}}); if(!job)return res.status(404).json({error:'NOT_FOUND'}); if(req.user?.role==='CUSTOMER'&&job.customerId!==req.user.id)return res.sendStatus(403); res.json(job);});
+router.get('/:id/matches',requireRole('ADMIN'),async(req,res)=>{try{const id=String(req.params.id);res.json(await findMatches(id,Number(req.query.radius)||10));}catch(e:any){res.status(400).json({error:e.message});}});
 export default router;
