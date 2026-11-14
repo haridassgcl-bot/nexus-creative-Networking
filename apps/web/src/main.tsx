@@ -23,7 +23,7 @@ const DEFAULT_ENGINEER_ID = 'cmwgjfbri001aumk0lq1nlkgn';
 
 function App() {
   const role = (new URLSearchParams(location.search).get('role') || 'customer').toLowerCase();
-  const [api, setApi] = useState('http://localhost:4000');
+  const [api, setApi] = useState((import.meta as any).env?.VITE_API_URL || 'http://localhost:4000');
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');
   const [mode, setMode] = useState('ONSITE');
