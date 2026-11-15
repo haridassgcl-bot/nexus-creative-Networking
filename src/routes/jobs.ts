@@ -5,6 +5,8 @@ import { dispatchJob,findMatches } from '../services/matching';
 import { requireRole } from '../middleware/auth';
 const router=Router();
 const createSchema=z.object({mode:z.enum(['REMOTE','ONSITE','BOTH']),latitude:z.number(),longitude:z.number(),address:z.string().optional(),customerNotes:z.string().max(3000).optional(),items:z.array(z.object({serviceId:z.string(),quantity:z.number().int().min(1).max(20)})).min(1)});
+router.get('/',requireRole('CUSTOMER'),async(req,res)=>{const list=await prisma.job.findMany({where:{customerId:req.user!.id},include:{items:true,assignment:{include:{engineer:{include:{user:true}}}},events:{orderBy:{createdAt:'desc'},take:5}},orderBy:{requestedAt:'desc'}});res.json(list);});
+
 router.post('/',requireRole('CUSTOMER'),async(req,res)=>{
  try {const input=createSchema.parse(req.body); const services=await prisma.service.findMany({where:{id:{in:input.items.map(i=>i.serviceId)},active:true}}); if(services.length!==new Set(input.items.map(i=>i.serviceId)).size) return res.status(400).json({error:'INVALID_SERVICE'});
  const total=input.items.reduce((sum,i)=>sum+(services.find(s=>s.id===i.serviceId)!.basePrice*i.quantity),0);

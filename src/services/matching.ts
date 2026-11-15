@@ -41,7 +41,7 @@ export async function dispatchJob(jobId:string) {
   const now=new Date();
   await prisma.$transaction([
     prisma.job.update({where:{id:jobId},data:{status:'OFFERED'}}),
-    ...batch.map(m=>prisma.jobOffer.upsert({where:{jobId_engineerId:{jobId,engineerId:m.engineer.id}},create:{jobId,engineerId:m.engineer.id,matchScore:m.score,distanceKm:m.distanceKm,expiresAt:new Date(now.getTime()+30_000)},update:{status:'SENT',matchScore:m.score,distanceKm:m.distanceKm,sentAt:now,expiresAt:new Date(now.getTime()+30_000)}}))
+    ...batch.map(m=>prisma.jobOffer.upsert({where:{jobId_engineerId:{jobId,engineerId:m.engineer.id}},create:{jobId,engineerId:m.engineer.id,matchScore:m.score,distanceKm:m.distanceKm,expiresAt:new Date(now.getTime()+10*60_000)},update:{status:'SENT',matchScore:m.score,distanceKm:m.distanceKm,sentAt:now,expiresAt:new Date(now.getTime()+10*60_000)}}))
   ]);
   return {radiusKm:radius,matches:batch.map(m=>({engineerId:m.engineer.id,name:m.engineer.userId,score:m.score,distanceKm:m.distanceKm})),expanded:false};
 }
